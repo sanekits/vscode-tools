@@ -9,3 +9,7 @@ do-vscode-tools() {
     vscode-tools.sh
 }
 
+codew() {
+    command code -w -
+}
+

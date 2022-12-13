@@ -28,7 +28,7 @@ stub() {
    builtin echo "  <<< STUB[$*] >>> " >&2
 }
 main() {
-    builtin echo "Hello vscode-tools, shellkit edition: args:[$*]"
+    echo "codew:  Launch vscode to view stdout, e.g. \"ls | codew\""
 }
 
 [[ -z ${sourceMe} ]] && {
