@@ -11,3 +11,5 @@
 #   my-script.sh #help@ ${SHELLKIT_HELP_SYMBOL} --help
 #
 vscode-tools.sh
+vscode-remote-whacker.sh
+vscode-make-snippet.sh
