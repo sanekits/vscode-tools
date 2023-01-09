@@ -29,6 +29,9 @@ stub() {
 }
 main() {
     echo "codew:  Launch vscode to view stdout, e.g. \"ls | codew\""
+    echo "vscode-remote-whacker.sh:  Reset state of vscode-server on remote"
+    echo "vscode-make-snippet.sh: Create code snippet from raw text"
+
 }
 
 [[ -z ${sourceMe} ]] && {
