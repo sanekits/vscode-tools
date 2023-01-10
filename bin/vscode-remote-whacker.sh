@@ -34,7 +34,7 @@ do_whack() {
         echo "Rebuilding ~/.vscode-server/data/ and ../extensions:"
         rsync -a --info=progress2 ${HOME}/.vscold-${dn}/data ${HOME}/.vscold-${dn}/extensions ./  || die 112
         {
-            echo "Done --Reload your troubled vscode window(s) now."
+            echo "Done. Reload your troubled vscode window(s) now."
             echo "Clean up ~/.vscold-* when no active VSCode instances"
             echo "are in use.  Here's what you have on $(hostname):"
             ( cd ; ls -aldF .vscold-* .vscode-server ) | sed -e 's/^/   /'
