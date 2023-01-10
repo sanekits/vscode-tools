@@ -17,7 +17,11 @@ die() {
     builtin exit 1
 }
 
-do_whack() {
+do_rebuild() {
+    which rsync &>/dev/null || {
+        echo "ERROR:rsync must be installed on $(hostname)" >&2
+        false; return;
+    }
     [[ -d ${HOME}/.vscode-server ]] || {
         echo "Sorry, no ~/.vscode-server/ dir exists.  Nothing I can do to help." >&2
         false; return;
@@ -46,10 +50,40 @@ do_whack() {
     false; return
 }
 
-main() {
-    which rsync &>/dev/null || die "rsync must be installed on $(hostname)"
-    do_whack
+do_kill() {
+    kill -9 $(ps ux | grep vscode-server | awk '{print $2}') # Kill all vscode-server processes
+}
 
+main() {
+    [[ $# -eq 0 ]] && { $scriptName --help; exit; }
+    while [[ -n $1 ]]; do
+        case $1 in
+            --help|-h)
+                echo "Whacks the state of VSCode remote server to solve stability or connection problems."
+                echo
+                echo "Usage:"
+                echo "   $(basename $scriptName) --kill|-k  --rebuild|-r"
+                echo
+                echo "...where:"
+                echo "   --kill:    Terminate all vscode-server processes."
+                echo "   --rebuild: Reset server tree state to force update on"
+                echo "              window reload."
+                exit 1;;
+
+            --kill|-k)
+                shift
+                do_kill
+                continue
+                ;;
+            --rebuild|--whack|-r)
+                shift
+                do_rebuild
+                continue
+                ;;
+            *) die "Unknown argument: $1"
+        esac
+        shift
+    done
 }
 
 [[ -z ${sourceMe} ]] && {

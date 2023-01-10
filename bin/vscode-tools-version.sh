@@ -2,7 +2,7 @@
 
 # Running vscode-tools-version.sh is the correct way to
 # get the home install path for the tool
-KitVersion=0.1.7
+KitVersion=0.1.8
 
 canonpath() {
     builtin type -t realpath.sh &>/dev/null && {
