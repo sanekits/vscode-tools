@@ -50,6 +50,39 @@ do_rebuild() {
     false; return
 }
 
+fwd_remote() {
+    # Copy ourselves to remote host and run there.
+    local server="$1"
+    shift
+
+    local fwd_args="$@"
+    [[ -n $server ]] || die "No server argument provided"
+    local script_name_on_remote=".vscrmwhack-$$.sh"
+
+    which ssh &>/dev/null \
+        || die "Can't find ssh on the PATH"
+    echo "Relaunching $(basename ${scriptName}) on host ${server}:" >&2
+    ssh "$server" true \
+        || die "ssh $server true --> command fails"
+    local out="$(ssh $server true 2>&1 )"
+    [[ -n "$out" ]] \
+        && die "ssh $server --> round-trip terminal check fails.  Ensure that ssh does not output any text for command \"ssh $server true\".  This may involve changes to your shell initialization on \"$server\" to suppress commands which emit text on non-interactive shells -- which is important for a variety of reasons."
+
+    # Do the copy:
+    ssh "$server" "cat > ./${script_name_on_remote}" < "$scriptName" \
+        || die "Failed copying $scriptName to remote \"$server\""
+
+    ssh "$server" "chmod +x ./${script_name_on_remote}"
+
+    # Invoke the whacker:
+    ssh "$server" "././${script_name_on_remote} ${fwd_args[@]}" \
+        || exit 1
+
+    # Clean up:
+    ssh "$server" "rm -f ./${script_name_on_remote}"
+
+}
+
 do_kill() {
     kill -9 $(ps ux | grep vscode-server | awk '{print $2}') # Kill all vscode-server processes
 }
@@ -59,15 +92,20 @@ main() {
     while [[ -n $1 ]]; do
         case $1 in
             --help|-h)
-                echo "Whacks the state of VSCode remote server to solve stability or connection problems."
+                echo "Whacks the state of VSCode ssh-remote server to solve stability or connection problems."
+                echo ""
+                echo "NOTE: run this on the remote host, not on your local VSCode UI installation.  (If "
+                echo " that's inconvenient, use the --server option and the script will copy itself to"
+                echo " the remote host and forward remaining args there.)"
                 echo
                 echo "Usage:"
-                echo "   $(basename $scriptName) --kill|-k  --rebuild|-r"
+                echo "   $(basename $scriptName) [--server hostname] --kill|-k  --rebuild|-r"
                 echo
                 echo "...where:"
+                echo "   --rebuild: Reset server tree state to force update on window reload."
                 echo "   --kill:    Terminate all vscode-server processes."
-                echo "   --rebuild: Reset server tree state to force update on"
-                echo "              window reload."
+                echo "   --server [<user>@host]: Forward command to remote host."
+                echo "              (--server should precede other options if used)"
                 exit 1;;
 
             --kill|-k)
@@ -80,6 +118,10 @@ main() {
                 do_rebuild
                 continue
                 ;;
+            --server|-s)
+                shift
+                fwd_remote "$@";
+                exit ;;
             *) die "Unknown argument: $1"
         esac
         shift
