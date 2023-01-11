@@ -12,6 +12,9 @@ open on the remote and don't want to lose state.
 of the `~/.vscode-server/` tree so that a "Reload Window" operation will load from a
 fresh context.
 
+- Choice of `--rebuild`, `--kill`, or both.
+- Option to run from client machine, e.g. `vscode-remote-whacker.sh --server my-server --rebuild` *(NOTE: if you don't use this option, the expectation is that you will run the script on the **remote** server manually)*
+
 ## Setup
 
 Download and install the self-extracting setup script:
