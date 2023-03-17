@@ -4,12 +4,16 @@ vscode-tools-semaphore() {
     [[ 1 -eq  1 ]]
 }
 
-do-vscode-tools() {
-    # TODO: This is a test function.  You can discard it.
-    vscode-tools.sh
+which code &>/dev/null || {
+    which code-server &>/dev/null && {
+        code() {
+            code-server "$@"
+        }
+    }
 }
 
 codew() {
-    command code -w -
+    code -w -
 }
+
 
