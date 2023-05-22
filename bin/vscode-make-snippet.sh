@@ -43,23 +43,6 @@ stub() {
     echo " >>> " >&2
 }
 
-# xform_body() {
-#     #  This code is suspect!   Does not correctly translate printv() (from bashics)
-#     [[ -f $1 ]] || die "no input for xform_body()"
-#     local inputfile="$1"
-#     command sed -E \
-#          -e 's%[\]$%\\\\%' \
-#          -e 's%[\]n%\\\\n%g' \
-#          -e 's/["]/\\"/g'  \
-#          -e 's/[$]/\\\\\$/g'  \
-#          -e 's/[\]/\\/g' \
-#          -e 's/\t/\\t/g' \
-#          -e 's/^/        "/'  \
-#          -e 's/$/",/'  \
-#          ${inputfile}
-
-#     set +x
-# }
 
 xform_body_v2() {
      [[ -f $1 ]] || die "no input for xform_body_v2()"
@@ -91,7 +74,7 @@ make_snippet() {
     local input="$1"
     emitHeader $(basename "$input")
     local bodyIntermediateOutput=$(mktemp)
-    xform_body_v2 "$input" > $bodyIntermediateOutput
+    xform_body_v2 "$input" | sed 's,^,        ,' > $bodyIntermediateOutput
     cat "$bodyIntermediateOutput"
     emitTail
     [[ -z $PRESERVE_BODY ]] && {

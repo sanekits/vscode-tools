@@ -12,7 +12,6 @@ import sys
 import fileinput
 
 def escapeLine(line:str):
-    #escChars=['\\','$','{','}','"']
     ovw=""
     for c in line:
         if c == '\n':
@@ -23,10 +22,6 @@ def escapeLine(line:str):
             ovw = ovw + '\\\\'
         elif c == '"':
             ovw = ovw + '\\"'
-        # elif c == '{':
-        #     ovw = ovw + '\\\\{'
-        # elif c == '}':
-        #     ovw = ovw + '\\\\}'
         elif c == '$':
             ovw = ovw + '\\\\$'
         else:
