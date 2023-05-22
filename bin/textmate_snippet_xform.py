@@ -23,10 +23,10 @@ def escapeLine(line:str):
             ovw = ovw + '\\\\'
         elif c == '"':
             ovw = ovw + '\\"'
-        elif c == '{':
-            ovw = ovw + '\\\\{'
-        elif c == '}':
-            ovw = ovw + '\\\\}'
+        # elif c == '{':
+        #     ovw = ovw + '\\\\{'
+        # elif c == '}':
+        #     ovw = ovw + '\\\\}'
         elif c == '$':
             ovw = ovw + '\\\\$'
         else:
