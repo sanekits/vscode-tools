@@ -1,4 +1,5 @@
 {
+    "window.title": "🥐 vscode-tools shellkit",
     "workbench.colorCustomizations": {
         "tab.activeForeground": "#9272c2",
         "tab.unfocusedActiveForeground": "#808080",
