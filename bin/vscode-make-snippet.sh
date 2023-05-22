@@ -21,6 +21,12 @@ scriptDir=$(command dirname -- "${scriptName}")
 
 origInputs=
 
+python3() {
+    local bpy=$(which python3.{12..5} 2>/dev/null | head -n 1)
+    [[ -n "$bpy" ]] || die "No acceptable python3 interpreter found"
+    $bpy "$@"
+}
+
 die() {
     builtin echo "ERROR: $*" >&2
     builtin exit 1
@@ -37,21 +43,28 @@ stub() {
     echo " >>> " >&2
 }
 
-xform_body() {
-    [[ -f $1 ]] || die "no input for xform_body()"
-    local inputfile="$1"
-    command sed -E \
-         -e 's%[\]$%\\\\%' \
-         -e 's%[\]n%\\\\n%g' \
-         -e 's/["]/\\"/g'  \
-         -e 's/[$]/\\\\\$/g'  \
-         -e 's/[\]/\\/g' \
-         -e 's/\t/\\t/g' \
-         -e 's/^/        "/'  \
-         -e 's/$/",/'  \
-         ${inputfile}
+# xform_body() {
+#     #  This code is suspect!   Does not correctly translate printv() (from bashics)
+#     [[ -f $1 ]] || die "no input for xform_body()"
+#     local inputfile="$1"
+#     command sed -E \
+#          -e 's%[\]$%\\\\%' \
+#          -e 's%[\]n%\\\\n%g' \
+#          -e 's/["]/\\"/g'  \
+#          -e 's/[$]/\\\\\$/g'  \
+#          -e 's/[\]/\\/g' \
+#          -e 's/\t/\\t/g' \
+#          -e 's/^/        "/'  \
+#          -e 's/$/",/'  \
+#          ${inputfile}
 
-    set +x
+#     set +x
+# }
+
+xform_body_v2() {
+     [[ -f $1 ]] || die "no input for xform_body_v2()"
+     local inputfile="$1"
+     python3 "${scriptDir}/textmate_snippet_xform.py" < "$inputfile"
 }
 
 emitHeader() {
@@ -78,13 +91,17 @@ make_snippet() {
     local input="$1"
     emitHeader $(basename "$input")
     local bodyIntermediateOutput=$(mktemp)
-    xform_body "$input" > $bodyIntermediateOutput
+    xform_body_v2 "$input" > $bodyIntermediateOutput
     cat "$bodyIntermediateOutput"
     emitTail
     [[ -z $PRESERVE_BODY ]] && {
         [[ -f $bodyIntermediateOutput ]] && command rm $bodyIntermediateOutput
     }
     [[ 1 -eq 1 ]]
+}
+
+do_help() {
+    echo "Um.  Please add help."
 }
 
 parseArgs() {
