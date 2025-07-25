@@ -22,7 +22,7 @@ scriptDir=$(command dirname -- "${scriptName}")
 origInputs=
 
 python3() {
-    local bpy=$(which python3.{12..5} 2>/dev/null | head -n 1)
+    local bpy=$(which python3.{13..5} 2>/dev/null | head -n 1)
     [[ -n "$bpy" ]] || die "No acceptable python3 interpreter found"
     $bpy "$@"
 }
