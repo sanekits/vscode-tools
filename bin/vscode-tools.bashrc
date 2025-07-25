@@ -12,8 +12,17 @@ which code &>/dev/null || {
     }
 }
 
-codew() {
-    code -w -
+shell_is_wsl() {
+    uname -a | grep -q WSL2 || { echo false; return; }
+    echo true
 }
+export IsWsl=${IsWsl:-$(shell_is_wsl)}
 
-
+if $IsWsl; then
+    codew() {
+        # From WSL, invoking a Windows-side vscode command
+        cmd.exe /C code "$@"
+    }
+else
+    codew() { echo "ERROR: codew only works in WSL" >&2; false; }
+fi
