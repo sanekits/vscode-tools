@@ -1,0 +1,66 @@
+#!/bin/bash
+# Wrapper for 'code --diff' that handles process substitutions by creating temp files
+
+#shellcheck disable=2154
+PS4='$( _0=$?; exec 2>/dev/null; realpath -- "${BASH_SOURCE[0]:-?}:${LINENO} ^$_0 ${FUNCNAME[0]:-?}()=>" ) '
+
+{
+    # Usage function
+    usage() {
+        echo "Invokes 'code --diff -w ...' with support for pipes-as-files"
+        echo "Usage: code-diff <file1> <file2>" >&2
+        exit 1
+    }
+    # Function to clean up temp files on exit
+    cleanup() {
+        [[ -n "${temp_files[*]}" ]] || return
+        rm -f "${temp_files[@]}" 2>/dev/null || :
+    }
+    # Function to handle special files and copy to temp if needed
+    handle_file() {
+        local f="$1"
+        if [[ "$f" =~ ^/dev/ ]]; then
+            local tmpf
+            tmpf=$(mktemp)
+            temp_files+=("$tmpf")
+            cat "$f" > "$tmpf"
+            echo "$tmpf"
+        else
+            echo "$f"
+        fi
+    }
+
+    main() {
+        # Help handler
+        if [[ "$1" == "--help" || "$1" == "-h" ]]; then
+            usage
+        fi
+
+        if [[ $# -ne 2 ]]; then
+            usage
+        fi
+
+        file1="$1"
+        file2="$2"
+        temp_files=()
+
+        # Check file existence (unless /dev/ or process substitution)
+        for f in "$file1" "$file2"; do
+            if [[ ! "$f" =~ ^/dev/ ]] && [[ ! -e "$f" ]]; then
+                echo "Error: File not found: $f" >&2
+                exit 2
+            fi
+        done
+
+        trap cleanup EXIT INT TERM
+
+        file1=$(handle_file "$file1")
+        file2=$(handle_file "$file2")
+        echo "Comparing $file1 and $file2: with code -w --diff.  Close files to continue"
+        code --diff -w "$file1" "$file2"
+    }
+}
+
+[[ -z ${sourceMe:-} ]] && {
+    main "$@"
+}

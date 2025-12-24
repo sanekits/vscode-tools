@@ -13,3 +13,4 @@
 vscode-tools.sh
 vscode-remote-whacker.sh
 vscode-make-snippet.sh
+code-diff
